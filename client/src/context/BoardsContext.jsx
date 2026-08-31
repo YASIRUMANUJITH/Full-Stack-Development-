@@ -1,28 +1,36 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { mockBoards as seedBoards } from '../data/mockData'
+import { boardsApi } from '../api/boards'
 
 const BoardsContext = createContext(null)
-const STORAGE_KEY = 'syncboard:boards'
 
 export function BoardsProvider({ children }) {
-  const [boards, setBoardsState] = useState(() => {
+  const [boards, setBoardsState] = useState(seedBoards)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const refresh = useCallback(async () => {
+    setLoading(true)
+    setError('')
     try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      return raw ? JSON.parse(raw) : seedBoards
-    } catch {
-      return seedBoards
+      const data = await boardsApi.list()
+      setBoardsState(data)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
-  })
+  }, [])
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(boards))
-  }, [boards])
+    refresh()
+  }, [refresh])
 
   const setBoards = useCallback((updater) => {
     setBoardsState((prev) => (typeof updater === 'function' ? updater(prev) : updater))
   }, [])
 
-  return <BoardsContext.Provider value={{ boards, setBoards }}>{children}</BoardsContext.Provider>
+  return <BoardsContext.Provider value={{ boards, setBoards, loading, error, refresh }}>{children}</BoardsContext.Provider>
 }
 
 export function useBoards() {
