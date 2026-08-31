@@ -1,20 +1,23 @@
+import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import BoardCard from '../components/BoardCard'
-import { mockBoards } from '../data/mockData'
+import { useBoards } from '../context/BoardsContext'
 import './BoardsPage.css'
 
 export default function BoardsPage() {
+  const { boards } = useBoards()
+
   return (
     <div className="boards-page">
       <Navbar />
       <header className="boards-header">
         <h1>Your boards</h1>
-        <button type="button" className="new-board-button" title="Board creation arrives in Milestone 2">
+        <Link to="/boards/new" className="new-board-button">
           + New Board
-        </button>
+        </Link>
       </header>
       <div className="boards-list">
-        {mockBoards.map((board) => (
+        {boards.map((board) => (
           <BoardCard key={board.id} board={board} />
         ))}
       </div>

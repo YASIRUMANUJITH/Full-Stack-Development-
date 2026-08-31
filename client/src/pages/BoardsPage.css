@@ -20,6 +20,9 @@
 }
 
 .new-board-button {
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
   border: 1.5px dashed var(--border-strong);
   background: transparent;
   color: var(--text-soft);

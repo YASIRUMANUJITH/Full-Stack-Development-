@@ -51,6 +51,19 @@
   background: var(--column-bg);
 }
 
+.nav-link {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+}
+
+.nav-link:hover {
+  background: var(--column-bg);
+}
+
 .user-chip {
   width: 34px;
   height: 34px;

@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import './LoginPage.css'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitted, setSubmitted] = useState(false)
@@ -24,7 +26,9 @@ export default function LoginPage() {
         onSubmit={(event) => {
           event.preventDefault()
           setSubmitted(true)
-          if (isValid) navigate('/board')
+          if (!isValid) return
+          login({ email })
+          navigate('/boards')
         }}
       >
         <h1 className="login-title">SyncBoard</h1>
@@ -59,7 +63,9 @@ export default function LoginPage() {
         <button type="submit" className="login-button">
           Sign in
         </button>
-        <p className="login-note">Static preview — real authentication arrives in Milestone 2.</p>
+        <p className="login-note">
+          No account? <Link to="/signup">Create one</Link>
+        </p>
       </form>
     </main>
   )

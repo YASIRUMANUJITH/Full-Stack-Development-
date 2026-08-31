@@ -1,33 +1,32 @@
 import { useState } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { useBoards } from '../context/BoardsContext'
-import { updateTask, deleteTask, moveTask } from '../utils/board'
+import { addTask } from '../utils/board'
 import { PRIORITIES, LABELS } from '../data/constants'
-import './TaskPage.css'
+import './CreateTaskPage.css'
 
-export default function TaskPage() {
-  const { boardId, taskId } = useParams()
+export default function CreateTaskPage() {
+  const { boardId } = useParams()
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { boards, setBoards } = useBoards()
   const board = boards.find((item) => item.id === boardId)
-  const column = board?.columns.find((col) => col.tasks.some((item) => item.id === taskId))
-  const task = column?.tasks.find((item) => item.id === taskId)
 
-  const [title, setTitle] = useState(task?.title ?? '')
-  const [description, setDescription] = useState(task?.description ?? '')
-  const [assignee, setAssignee] = useState(task?.assignee ?? '')
-  const [priority, setPriority] = useState(task?.priority ?? 'medium')
-  const [labels, setLabels] = useState(task?.labels ?? [])
-  const [status, setStatus] = useState(column?.id ?? 'todo')
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [assignee, setAssignee] = useState('')
+  const [priority, setPriority] = useState('medium')
+  const [labels, setLabels] = useState([])
+  const [columnId, setColumnId] = useState(searchParams.get('column') || 'todo')
   const [submitted, setSubmitted] = useState(false)
 
-  if (!board || !task || !column) {
+  if (!board) {
     return (
       <div className="task-page">
         <Navbar />
         <main className="task-page-content">
-          <p>Task not found.</p>
+          <p>Board not found.</p>
           <Link to="/boards" className="task-page-back">
             Back to boards
           </Link>
@@ -36,8 +35,7 @@ export default function TaskPage() {
     )
   }
 
-  const titleError = title.trim().length >= 2 ? '' : 'Title must be at least 2 characters.'
-  const isValid = !titleError
+  const error = title.trim().length >= 2 ? '' : 'Title must be at least 2 characters.'
 
   return (
     <div className="task-page">
@@ -51,24 +49,24 @@ export default function TaskPage() {
           onSubmit={(event) => {
             event.preventDefault()
             setSubmitted(true)
-            if (!isValid) return
-            setBoards((prev) => {
-              let next = updateTask(prev, boardId, taskId, { title: title.trim(), description: description.trim(), assignee: assignee.trim() || 'SU', priority, labels })
-              if (status !== column.id) next = moveTask(next, boardId, taskId, status)
-              return next
-            })
-            navigate(`/boards/${board.id}`)
+            if (error) return
+            setBoards((prev) => addTask(prev, boardId, columnId, { title, description, assignee, priority, labels }))
+            navigate(`/boards/${boardId}`)
           }}
         >
-          <h1>Edit task</h1>
+          <h1>New task</h1>
           <label>
             Title
             <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Task title" />
           </label>
-          {submitted && titleError && <p className="field-error">{titleError}</p>}
+          {submitted && error && <p className="field-error">{error}</p>}
           <label>
             Description
             <textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={4} placeholder="Details" />
+          </label>
+          <label>
+            Assignee
+            <input value={assignee} onChange={(event) => setAssignee(event.target.value)} placeholder="Initials" />
           </label>
           <label>
             Priority
@@ -81,15 +79,11 @@ export default function TaskPage() {
             </select>
           </label>
           <label>
-            Assignee
-            <input value={assignee} onChange={(event) => setAssignee(event.target.value)} placeholder="Initials" />
-          </label>
-          <label>
             Column
-            <select value={status} onChange={(event) => setStatus(event.target.value)}>
-              {board.columns.map((col) => (
-                <option key={col.id} value={col.id}>
-                  {col.title}
+            <select value={columnId} onChange={(event) => setColumnId(event.target.value)}>
+              {board.columns.map((column) => (
+                <option key={column.id} value={column.id}>
+                  {column.title}
                 </option>
               ))}
             </select>
@@ -109,21 +103,9 @@ export default function TaskPage() {
               </label>
             ))}
           </fieldset>
-          <div className="task-form-actions">
-            <button
-              type="button"
-              className="task-delete"
-              onClick={() => {
-                setBoards((prev) => deleteTask(prev, boardId, taskId))
-                navigate(`/boards/${board.id}`)
-              }}
-            >
-              Delete
-            </button>
-            <button type="submit" className="task-save">
-              Save
-            </button>
-          </div>
+          <button type="submit" className="login-button">
+            Create task
+          </button>
         </form>
       </main>
     </div>

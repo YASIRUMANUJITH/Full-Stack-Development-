@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import TaskCard from './TaskCard'
 import './Column.css'
 
@@ -14,13 +15,9 @@ export default function Column({ column, boardId }) {
           <TaskCard key={task.id} task={task} status={column.title} boardId={boardId} />
         ))}
       </div>
-      <button
-        type="button"
-        className="add-task-button"
-        title="Task creation arrives in Milestone 2"
-      >
+      <Link to={`/boards/${boardId}/tasks/new?column=${column.id}`} className="add-task-button">
         + Add task
-      </button>
+      </Link>
     </section>
   )
 }
