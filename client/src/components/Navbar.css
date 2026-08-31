@@ -1,18 +1,19 @@
 .navbar {
   height: 60px;
   background: var(--navbar-bg);
-  color: #fff;
+  color: var(--text);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  color: #fff;
+  color: var(--text);
   text-decoration: none;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -22,7 +23,7 @@
   width: 30px;
   height: 30px;
   border-radius: 8px;
-  background: linear-gradient(135deg, var(--brand), var(--accent));
+  background: var(--brand);
   display: grid;
   place-items: center;
   font-size: 1rem;
@@ -35,9 +36,9 @@
 }
 
 .theme-toggle {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #fff;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
   border-radius: 8px;
   padding: 0.35rem 0.7rem;
   font-size: 1rem;
@@ -47,7 +48,7 @@
 }
 
 .theme-toggle:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: var(--column-bg);
 }
 
 .user-chip {

@@ -30,7 +30,7 @@
   width: 84px;
   height: 84px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--brand), var(--accent));
+  background: var(--brand);
   color: #fff;
   font-size: 1.7rem;
   font-weight: 800;

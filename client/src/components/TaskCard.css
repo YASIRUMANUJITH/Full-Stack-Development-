@@ -152,3 +152,15 @@
 .modal-meta dd {
   font-weight: 600;
 }
+
+.modal-full-link {
+  color: var(--brand);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  margin-top: 0.4rem;
+}
+
+.modal-full-link:hover {
+  text-decoration: underline;
+}

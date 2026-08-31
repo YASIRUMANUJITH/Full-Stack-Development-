@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
+import { Link } from 'react-router-dom'
 
-export default function TaskModal({ task, status, onClose }) {
+export default function TaskModal({ task, status, boardId, onClose }) {
   useEffect(() => {
     const handleKey = (event) => {
       if (event.key === 'Escape') onClose()
@@ -45,6 +46,11 @@ export default function TaskModal({ task, status, onClose }) {
             <dd>{status}</dd>
           </div>
         </dl>
+        {boardId && (
+          <Link to={`/boards/${boardId}/tasks/${task.id}`} className="modal-full-link">
+            Open full page
+          </Link>
+        )}
       </div>
     </div>
   )

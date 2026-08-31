@@ -1,7 +1,7 @@
 import TaskCard from './TaskCard'
 import './Column.css'
 
-export default function Column({ column }) {
+export default function Column({ column, boardId }) {
   return (
     <section className="column">
       <header className="column-header">
@@ -11,7 +11,7 @@ export default function Column({ column }) {
       <div className="column-tasks">
         {column.tasks.length === 0 && <p className="column-empty">No tasks here yet.</p>}
         {column.tasks.map((task) => (
-          <TaskCard key={task.id} task={task} status={column.title} />
+          <TaskCard key={task.id} task={task} status={column.title} boardId={boardId} />
         ))}
       </div>
       <button

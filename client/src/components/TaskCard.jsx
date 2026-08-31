@@ -2,7 +2,7 @@ import { useState } from 'react'
 import TaskModal from './TaskModal'
 import './TaskCard.css'
 
-export default function TaskCard({ task, status }) {
+export default function TaskCard({ task, status, boardId }) {
   const [showDetails, setShowDetails] = useState(false)
 
   return (
@@ -35,7 +35,7 @@ export default function TaskCard({ task, status }) {
         </footer>
       </article>
       {showDetails && (
-        <TaskModal task={task} status={status} onClose={() => setShowDetails(false)} />
+        <TaskModal task={task} status={status} boardId={boardId} onClose={() => setShowDetails(false)} />
       )}
     </>
   )

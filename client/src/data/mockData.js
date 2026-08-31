@@ -119,4 +119,73 @@ const mockBoard = {
   ],
 }
 
+const mockBoards = [
+  mockBoard,
+  {
+    id: 'board-2',
+    name: 'Marketing Sprint',
+    columns: [
+      {
+        id: 'todo',
+        title: 'To Do',
+        tasks: [
+          {
+            id: 't-401',
+            title: 'Create campaign brief',
+            description: 'Outline goals, channels and key messages for the launch.',
+            assignee: 'AL',
+            priority: 'high',
+            labels: ['docs'],
+          },
+          {
+            id: 't-402',
+            title: 'Design social assets',
+            description: 'Produce banners and post templates in the new brand style.',
+            assignee: 'YH',
+            priority: 'medium',
+            labels: ['design'],
+          },
+        ],
+      },
+      {
+        id: 'doing',
+        title: 'Doing',
+        tasks: [
+          {
+            id: 't-501',
+            title: 'Write launch copy',
+            description: 'Draft email, landing page and social copy for the campaign.',
+            assignee: 'TB',
+            priority: 'high',
+            labels: ['docs', 'design'],
+          },
+          {
+            id: 't-502',
+            title: 'Schedule ad placements',
+            description: 'Book slots and upload creatives to the ad platform.',
+            assignee: 'RN',
+            priority: 'low',
+            labels: ['deploy'],
+          },
+        ],
+      },
+      {
+        id: 'done',
+        title: 'Done',
+        tasks: [
+          {
+            id: 't-601',
+            title: 'Approve brand guidelines',
+            description: 'Final sign-off on colours, typography and logo usage.',
+            assignee: 'PR',
+            priority: 'medium',
+            labels: ['design'],
+          },
+        ],
+      },
+    ],
+  },
+]
+
+export { mockBoards }
 export default mockBoard
