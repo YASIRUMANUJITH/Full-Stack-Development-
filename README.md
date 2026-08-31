@@ -22,7 +22,7 @@ npm run dev
 
 Open http://localhost:5173 — sign-in at `/`, boards at `/boards`.
 
-**API docs:** Import `server/postman/SyncBoard-A02.postman_collection.json` into Postman, or run `VITE_API_URL=http://localhost:4000` (vite proxy handles `/api`).
+**API docs:** Import `server/postman/syncboard.postman_collection.json` into Postman, or run `VITE_API_URL=http://localhost:4000` (vite proxy handles `/api`).
 
 ## Tech Stack
 
