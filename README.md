@@ -1,4 +1,4 @@
-# SyncBoard
+# SyncBoard - TaskFlow
 
 SyncBoard is a static Kanban task board.
 ## How to Run
