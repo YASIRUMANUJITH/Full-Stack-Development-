@@ -5,11 +5,25 @@ const AuthContext = createContext(null)
 const TOKEN_KEY = 'syncboard:token'
 const USER_KEY = 'syncboard:auth'
 
+// Server users only carry name/email/ids — derive display initials for the
+// navbar/avatar chips.
+const withInitials = (user) => {
+  if (!user) return user
+  const source = (user.name || user.email || '').trim()
+  const initials = source
+    .split(/\s+/)
+    .map((word) => word[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
+  return { ...user, initials: initials || '?' }
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
       const raw = localStorage.getItem(USER_KEY)
-      return raw ? JSON.parse(raw) : null
+      return raw ? withInitials(JSON.parse(raw)) : null
     } catch {
       return null
     }
@@ -29,14 +43,14 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (data) => {
     const result = await authApi.login(data)
     localStorage.setItem(TOKEN_KEY, result.token)
-    setUser(result.user)
+    setUser(withInitials(result.user))
     return result
   }, [])
 
   const register = useCallback(async (data) => {
     const result = await authApi.register(data)
     localStorage.setItem(TOKEN_KEY, result.token)
-    setUser(result.user)
+    setUser(withInitials(result.user))
     return result
   }, [])
 

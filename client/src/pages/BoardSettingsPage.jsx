@@ -21,36 +21,21 @@ export default function BoardSettingsPage() {
         <Navbar />
         <main className="board-settings-content">
           <p>Board not found.</p>
-          <Link to="/boards" className="board-settings-back">
-            ← Back to boards
-          </Link>
+          <Link to="/boards">Back to boards</Link>
         </main>
       </div>
     )
   }
 
-  const members = [
-    ...new Set(
-      board.columns.flatMap((column) =>
-        column.tasks.map((task) => task.assignee)
-      )
-    ),
-  ]
-
-  const error =
-    name.trim().length >= 2
-      ? ''
-      : 'Board name must be at least 2 characters.'
+  const members = [...new Set(board.columns.flatMap((column) => column.tasks.map((task) => task.assignee)))]
+  const error = name.trim().length >= 2 ? '' : 'Board name must be at least 2 characters.'
 
   const handleSubmit = async (event) => {
     event.preventDefault()
     setSubmitted(true)
     setServerError('')
-
     if (error) return
-
     setBusy(true)
-
     try {
       await renameBoard(boardId, name.trim())
       navigate(`/boards/${boardId}`)
@@ -63,47 +48,21 @@ export default function BoardSettingsPage() {
   return (
     <div className="board-settings-page">
       <Navbar />
-
       <main className="board-settings-content">
-        <Link
-          to={`/boards/${board.id}`}
-          className="board-settings-back"
-        >
-          ← Back to {board.name}
-        </Link>
-
+        <Link to={`/boards/${board.id}`}>Back to {board.name}</Link>
         <form className="board-settings-form" onSubmit={handleSubmit}>
           <h1>Board settings</h1>
-
-          <p className="board-settings-subtitle">
-            Update your board name and review the people currently working on it.
-          </p>
-
           <label>
             Board name
-            <input
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-            />
+            <input value={name} onChange={(event) => setName(event.target.value)} />
           </label>
-
-          {submitted && error && (
-            <p className="board-settings-error">{error}</p>
-          )}
-
+          {submitted && error && <p className="field-error">{error}</p>}
           <label>
-            Columns
-            <input
-              value={board.columns
-                .map((column) => column.title)
-                .join(', ')}
-              disabled
-            />
+            Columns (preselected)
+            <input value={board.columns.map((column) => column.title).join(', ')} disabled />
           </label>
-
           <div>
-            <p className="settings-section-title">Members</p>
-
+            <p style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.4rem' }}>Members</p>
             <ul className="settings-members">
               {members.map((member) => (
                 <li key={member} className="settings-member">
@@ -112,19 +71,13 @@ export default function BoardSettingsPage() {
               ))}
             </ul>
           </div>
-
           {serverError && (
-            <p className="board-settings-error" role="alert">
+            <p className="field-error" role="alert">
               {serverError}
             </p>
           )}
-
-          <button
-            type="submit"
-            className="board-settings-submit"
-            disabled={busy}
-          >
-            {busy ? 'Saving…' : 'Save changes'}
+          <button type="submit" className="login-button" disabled={busy}>
+            {busy ? 'Saving…' : 'Save'}
           </button>
         </form>
       </main>

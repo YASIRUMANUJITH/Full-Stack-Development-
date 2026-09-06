@@ -4,6 +4,7 @@ export const boardsApi = {
   list: () => request('/api/boards'),
   get: (id) => request(`/api/boards/${id}`),
   create: (data) => request('/api/boards', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/api/boards/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   listTasks: (boardId, params = {}) => {
     const q = new URLSearchParams(params).toString()
     return request(`/api/boards/${boardId}/tasks${q ? `?${q}` : ''}`)

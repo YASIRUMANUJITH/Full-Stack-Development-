@@ -1,26 +1,42 @@
 import { boardRepo } from '../repositories/boardRepo.js'
-import { taskRepo } from '../repositories/taskRepo.js'
-import { NotFoundError } from '../utils/AppError.js'
+import { NotFoundError, ForbiddenError } from '../utils/AppError.js'
+
+function assertMember(board, userId) {
+  const isMember = board.owner === userId || board.members.includes(userId)
+  if (!isMember) throw new ForbiddenError('You do not have access to this board')
+}
 
 export const boardService = {
-  listBoards() {
-    return boardRepo.findAll()
+  listBoards(userId) {
+    return boardRepo.findAllForUser(userId)
   },
-  getBoard(id) {
-    const board = boardRepo.findById(id)
+
+  async getBoard(id, userId) {
+    const board = await boardRepo.findById(id)
     if (!board) throw new NotFoundError('Board not found')
+    assertMember(board, userId)
     return board
   },
-  createBoard(name) {
-    return boardRepo.create(name)
+
+  createBoard(name, userId) {
+    return boardRepo.create(name, userId)
   },
-  listTasks(boardId, query) {
-    const board = boardRepo.findById(boardId)
+
+  async updateBoard(id, patch, userId) {
+    const board = await boardRepo.findById(id)
     if (!board) throw new NotFoundError('Board not found')
+    assertMember(board, userId)
+    return boardRepo.update(id, patch)
+  },
+
+  async listTasks(boardId, query, userId) {
+    const board = await this.getBoard(boardId, userId)
     let tasks = board.columns.flatMap((column) => column.tasks.map((task) => ({ ...task, status: column.id })))
     if (query.q) {
       const q = query.q.toLowerCase()
-      tasks = tasks.filter((task) => task.title.toLowerCase().includes(q) || task.description.toLowerCase().includes(q))
+      tasks = tasks.filter(
+        (task) => task.title.toLowerCase().includes(q) || (task.description || '').toLowerCase().includes(q),
+      )
     }
     if (query.status) tasks = tasks.filter((task) => task.status === query.status)
     return tasks

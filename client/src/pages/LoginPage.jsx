@@ -9,6 +9,8 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [serverError, setServerError] = useState('')
+  const [busy, setBusy] = useState(false)
 
   const errors = {
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
@@ -19,18 +21,25 @@ export default function LoginPage() {
   }
   const isValid = !errors.email && !errors.password
 
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setSubmitted(true)
+    setServerError('')
+    if (!isValid) return
+    setBusy(true)
+    try {
+      await login({ email, password })
+      navigate('/boards')
+    } catch (err) {
+      setServerError(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <main className="login-page">
-      <form
-        className="login-card"
-        onSubmit={(event) => {
-          event.preventDefault()
-          setSubmitted(true)
-          if (!isValid) return
-          login({ email })
-          navigate('/boards')
-        }}
-      >
+      <form className="login-card" onSubmit={handleSubmit}>
         <h1 className="login-title">SyncBoard</h1>
         <p className="login-subtitle">Sign in to your team workspace</p>
 
@@ -60,8 +69,14 @@ export default function LoginPage() {
           <p className="field-error">{errors.password}</p>
         )}
 
-        <button type="submit" className="login-button">
-          Sign in
+        {serverError && (
+          <p className="field-error" role="alert">
+            {serverError}
+          </p>
+        )}
+
+        <button type="submit" className="login-button" disabled={busy}>
+          {busy ? 'Signing in…' : 'Sign in'}
         </button>
         <p className="login-note">
           No account? <Link to="/signup">Create one</Link>

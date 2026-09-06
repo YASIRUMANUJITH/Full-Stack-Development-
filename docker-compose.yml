@@ -1,0 +1,53 @@
+# Run the whole stack locally with one command (Docker Desktop required):
+#   docker compose up --build
+#   then seeded demo data with:  docker compose run --rm seed
+# App served at http://localhost:8080 (API at http://localhost:4000).
+services:
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand('ping').ok"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  server:
+    build: ./server
+    environment:
+      PORT: 4000
+      MONGODB_URI: mongodb://mongo:27017/syncboard
+      JWT_SECRET: compose-local-dev-secret
+      CLIENT_ORIGIN: http://localhost:8080
+    ports:
+      - "4000:4000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  # one-shot seeder: docker compose run --rm seed
+  seed:
+    build: ./server
+    command: node scripts/seed.js
+    profiles: ["seed"]
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/syncboard
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  client:
+    build:
+      context: ./client
+      args:
+        # the browser calls the API from the HOST, so the published port, not
+        # the container-network name
+        VITE_API_URL: http://localhost:4000
+    ports:
+      - "8080:80"
+    depends_on:
+      - server
+
+volumes:
+  mongo-data:

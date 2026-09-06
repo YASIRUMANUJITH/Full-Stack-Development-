@@ -5,12 +5,14 @@ import './SignupPage.css'
 
 export default function SignupPage() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { register } = useAuth()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [serverError, setServerError] = useState('')
+  const [busy, setBusy] = useState(false)
 
   const errors = {
     name: name.trim().length >= 2 ? '' : 'Enter at least 2 characters.',
@@ -20,18 +22,25 @@ export default function SignupPage() {
   }
   const isValid = !errors.name && !errors.email && !errors.password && !errors.confirm
 
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setSubmitted(true)
+    setServerError('')
+    if (!isValid) return
+    setBusy(true)
+    try {
+      await register({ name: name.trim(), email, password })
+      navigate('/boards')
+    } catch (err) {
+      setServerError(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <main className="login-page">
-      <form
-        className="login-card"
-        onSubmit={(event) => {
-          event.preventDefault()
-          setSubmitted(true)
-          if (!isValid) return
-          login({ name, email })
-          navigate('/boards')
-        }}
-      >
+      <form className="login-card" onSubmit={handleSubmit}>
         <h1 className="login-title">Create account</h1>
         <p className="login-subtitle">Join your team on SyncBoard</p>
 
@@ -82,8 +91,14 @@ export default function SignupPage() {
         </label>
         {submitted && errors.confirm && <p className="field-error">{errors.confirm}</p>}
 
-        <button type="submit" className="login-button">
-          Create account
+        {serverError && (
+          <p className="field-error" role="alert">
+            {serverError}
+          </p>
+        )}
+
+        <button type="submit" className="login-button" disabled={busy}>
+          {busy ? 'Creating account…' : 'Create account'}
         </button>
         <p className="login-note">
           Already have an account? <Link to="/">Sign in</Link>

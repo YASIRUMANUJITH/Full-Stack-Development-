@@ -1,17 +1,25 @@
 import { boardService } from '../services/boardService.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
+import { emitBoardsChanged } from '../realtime.js'
 
 export const getBoards = asyncHandler(async (req, res) => {
-  const boards = boardService.listBoards()
+  const boards = await boardService.listBoards(req.user.id)
   res.json({ data: boards })
 })
 
 export const getBoard = asyncHandler(async (req, res) => {
-  const board = boardService.getBoard(req.params.boardId)
+  const board = await boardService.getBoard(req.params.boardId, req.user.id)
   res.json({ data: board })
 })
 
 export const createBoard = asyncHandler(async (req, res) => {
-  const board = boardService.createBoard(req.body.name)
+  const board = await boardService.createBoard(req.body.name, req.user.id)
+  emitBoardsChanged(board.id)
   res.status(201).json({ data: board })
+})
+
+export const updateBoard = asyncHandler(async (req, res) => {
+  const board = await boardService.updateBoard(req.params.boardId, req.body, req.user.id)
+  emitBoardsChanged(board.id)
+  res.json({ data: board })
 })

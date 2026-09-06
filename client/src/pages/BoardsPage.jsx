@@ -11,7 +11,6 @@ export default function BoardsPage() {
     if (loading) {
       return <p className="boards-state">Loading boards…</p>
     }
-
     if (error) {
       return (
         <div className="boards-state" role="alert">
@@ -22,7 +21,6 @@ export default function BoardsPage() {
         </div>
       )
     }
-
     if (boards.length === 0) {
       return (
         <div className="boards-state">
@@ -33,7 +31,6 @@ export default function BoardsPage() {
         </div>
       )
     }
-
     return (
       <div className="boards-list">
         {boards.map((board) => (
@@ -46,15 +43,12 @@ export default function BoardsPage() {
   return (
     <div className="boards-page">
       <Navbar />
-
       <header className="boards-header">
         <h1>Your boards</h1>
-
         <Link to="/boards/new" className="new-board-button">
           + New Board
         </Link>
       </header>
-
       {renderContent()}
     </div>
   )

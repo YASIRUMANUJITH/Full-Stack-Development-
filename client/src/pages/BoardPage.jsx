@@ -25,7 +25,6 @@ export default function BoardPage() {
         <Navbar />
         <main className="board-page-content">
           <p>Board not found. It may have been deleted, or you do not have access to it.</p>
-
           <Link to="/boards" className="task-page-back">
             Back to boards
           </Link>

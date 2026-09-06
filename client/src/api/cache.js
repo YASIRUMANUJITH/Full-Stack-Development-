@@ -1,4 +1,4 @@
-import PouchDB from 'pouchdb'
+import PouchDB from 'pouchdb-browser'
 
 // Client-side persistence (project brief: at least one client-side mechanism).
 // Every successful boards fetch is mirrored into IndexedDB via PouchDB, so the

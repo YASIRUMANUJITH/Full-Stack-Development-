@@ -1,22 +1,32 @@
 import { taskRepo } from '../repositories/taskRepo.js'
-import { boardRepo } from '../repositories/boardRepo.js'
-import { NotFoundError } from '../utils/AppError.js'
+import { boardService } from './boardService.js'
+import { NotFoundError, ConflictError } from '../utils/AppError.js'
 
 export const taskService = {
-  createTask(boardId, data) {
-    const board = boardRepo.findById(boardId)
-    if (!board) throw new NotFoundError('Board not found')
+  async createTask(boardId, userId, data) {
+    await boardService.getBoard(boardId, userId)
     return taskRepo.create(boardId, data.columnId || 'todo', data)
   },
-  updateTask(boardId, taskId, patch) {
-    const task = taskRepo.update(boardId, taskId, patch)
-    if (!task) throw new NotFoundError('Task not found')
-    if (patch.status) taskRepo.move(boardId, taskId, patch.status)
-    return task
+
+  async updateTask(boardId, taskId, userId, patch) {
+    await boardService.getBoard(boardId, userId)
+    const found = await taskRepo.findTask(boardId, taskId)
+    if (!found) throw new NotFoundError('Task not found')
+
+    const { status, version, ...fields } = patch
+    if (version !== undefined && found.task.version !== version) {
+      throw new ConflictError('This task was changed elsewhere since you loaded it', 'CONFLICT', {
+        currentVersion: found.task.version,
+        yourVersion: version,
+      })
+    }
+    return taskRepo.update(boardId, taskId, fields, status)
   },
-  deleteTask(boardId, taskId) {
-    const task = taskRepo.remove(boardId, taskId)
-    if (!task) throw new NotFoundError('Task not found')
-    return task
+
+  async deleteTask(boardId, taskId, userId) {
+    await boardService.getBoard(boardId, userId)
+    const removed = await taskRepo.remove(boardId, taskId)
+    if (!removed) throw new NotFoundError('Task not found')
+    return removed
   },
 }
