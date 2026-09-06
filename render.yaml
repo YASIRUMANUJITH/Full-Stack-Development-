@@ -19,15 +19,15 @@ services:
       - key: PORT
         value: "4000"
 
-  - type: static
+   - type: web                  # was: type: static
     name: syncboard-client
+    runtime: static            # new line — this is what makes it a static site
     rootDir: client
     buildCommand: npm install && npm run build
     staticPublishPath: dist
-    pullRequestPreviewsEnabled: false
     envVars:
       - key: VITE_API_URL
-        value: https://CHANGE-ME-syncboard-api.onrender.com # the web service's URL
+        value: https://CHANGE-ME-syncboard-api.onrender.com
     routes:
       # SPA fallback: deep links like /boards/<id> must serve index.html
       - type: rewrite
