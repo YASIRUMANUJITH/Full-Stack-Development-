@@ -2,37 +2,108 @@
   min-height: calc(100vh - 60px);
   display: flex;
   flex-direction: column;
+  background: var(--bg);
 }
 
 .boards-header {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem;
+  padding: 2rem 1.5rem 1.5rem;
   gap: 1rem;
+}
+
+.boards-header h1 {
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text);
 }
 
 .boards-list {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  padding: 0 1.5rem 1.5rem;
+  gap: 1.25rem;
+  padding: 0 1.5rem 2rem;
 }
 
 .new-board-button {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
-  text-align: center;
-  border: 1.5px dashed var(--border-strong);
-  background: transparent;
-  color: var(--text-soft);
+  border: 1px solid var(--brand);
+  background: var(--brand);
+  color: #ffffff;
   border-radius: 12px;
-  padding: 0.7rem 1.1rem;
+  padding: 0.75rem 1.15rem;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .new-board-button:hover {
-  border-color: var(--brand);
-  color: var(--brand);
+  background: var(--brand-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.new-board-button:active {
+  transform: translateY(0);
+}
+
+.boards-state {
+  width: calc(100% - 3rem);
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 3rem 1.5rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+
+  text-align: center;
+  color: var(--text-soft);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.boards-state p {
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .boards-header {
+    padding: 1.5rem 1rem 1rem;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .boards-list {
+    grid-template-columns: 1fr;
+    padding: 0 1rem 1.5rem;
+  }
+
+  .new-board-button {
+    width: 100%;
+  }
+
+  .boards-state {
+    width: calc(100% - 2rem);
+    margin: 1rem auto;
+  }
 }
