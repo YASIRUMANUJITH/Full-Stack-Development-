@@ -2,14 +2,13 @@ import { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { useBoards } from '../context/BoardsContext'
-import { updateTask, deleteTask, moveTask } from '../utils/board'
 import { PRIORITIES, LABELS } from '../data/constants'
 import './TaskPage.css'
 
 export default function TaskPage() {
   const { boardId, taskId } = useParams()
   const navigate = useNavigate()
-  const { boards, setBoards } = useBoards()
+  const { boards, editTask, removeTask, refresh } = useBoards()
   const board = boards.find((item) => item.id === boardId)
   const column = board?.columns.find((col) => col.tasks.some((item) => item.id === taskId))
   const task = column?.tasks.find((item) => item.id === taskId)
@@ -21,6 +20,9 @@ export default function TaskPage() {
   const [labels, setLabels] = useState(task?.labels ?? [])
   const [status, setStatus] = useState(column?.id ?? 'todo')
   const [submitted, setSubmitted] = useState(false)
+  const [serverError, setServerError] = useState('')
+  const [conflict, setConflict] = useState('')
+  const [busy, setBusy] = useState(false)
 
   if (!board || !task || !column) {
     return (
@@ -39,6 +41,51 @@ export default function TaskPage() {
   const titleError = title.trim().length >= 2 ? '' : 'Title must be at least 2 characters.'
   const isValid = !titleError
 
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setSubmitted(true)
+    setServerError('')
+    setConflict('')
+    if (!isValid) return
+    setBusy(true)
+    try {
+      await editTask(boardId, taskId, {
+        title: title.trim(),
+        description: description.trim(),
+        assignee: assignee.trim() || 'SU',
+        priority,
+        labels,
+        status,
+        version: task.version,
+      })
+      navigate(`/boards/${board.id}`)
+    } catch (err) {
+      if (err.status === 409) setConflict(err.message)
+      else setServerError(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!window.confirm('Delete this task? This cannot be undone.')) return
+    setServerError('')
+    setBusy(true)
+    try {
+      await removeTask(boardId, taskId)
+      navigate(`/boards/${board.id}`)
+    } catch (err) {
+      setServerError(err.message)
+      setBusy(false)
+    }
+  }
+
+  const handleReloadLatest = async () => {
+    setConflict('')
+    await refresh()
+    navigate(`/boards/${board.id}`)
+  }
+
   return (
     <div className="task-page">
       <Navbar />
@@ -46,20 +93,7 @@ export default function TaskPage() {
         <Link to={`/boards/${board.id}`} className="task-page-back">
           Back to {board.name}
         </Link>
-        <form
-          className="task-form"
-          onSubmit={(event) => {
-            event.preventDefault()
-            setSubmitted(true)
-            if (!isValid) return
-            setBoards((prev) => {
-              let next = updateTask(prev, boardId, taskId, { title: title.trim(), description: description.trim(), assignee: assignee.trim() || 'SU', priority, labels })
-              if (status !== column.id) next = moveTask(next, boardId, taskId, status)
-              return next
-            })
-            navigate(`/boards/${board.id}`)
-          }}
-        >
+        <form className="task-form" onSubmit={handleSubmit}>
           <h1>Edit task</h1>
           <label>
             Title
@@ -109,19 +143,25 @@ export default function TaskPage() {
               </label>
             ))}
           </fieldset>
+          {serverError && (
+            <p className="field-error" role="alert">
+              {serverError}
+            </p>
+          )}
+          {conflict && (
+            <div className="field-error" role="alert">
+              <p>{conflict}</p>
+              <button type="button" className="task-save" onClick={handleReloadLatest}>
+                Reload latest
+              </button>
+            </div>
+          )}
           <div className="task-form-actions">
-            <button
-              type="button"
-              className="task-delete"
-              onClick={() => {
-                setBoards((prev) => deleteTask(prev, boardId, taskId))
-                navigate(`/boards/${board.id}`)
-              }}
-            >
+            <button type="button" className="task-delete" onClick={handleDelete} disabled={busy}>
               Delete
             </button>
-            <button type="submit" className="task-save">
-              Save
+            <button type="submit" className="task-save" disabled={busy}>
+              {busy ? 'Saving…' : 'Save'}
             </button>
           </div>
         </form>

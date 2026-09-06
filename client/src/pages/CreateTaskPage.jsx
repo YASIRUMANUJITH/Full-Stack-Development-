@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { useBoards } from '../context/BoardsContext'
-import { addTask } from '../utils/board'
 import { PRIORITIES, LABELS } from '../data/constants'
 import './CreateTaskPage.css'
 
@@ -10,7 +9,7 @@ export default function CreateTaskPage() {
   const { boardId } = useParams()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { boards, setBoards } = useBoards()
+  const { boards, addTask } = useBoards()
   const board = boards.find((item) => item.id === boardId)
 
   const [title, setTitle] = useState('')
@@ -20,6 +19,8 @@ export default function CreateTaskPage() {
   const [labels, setLabels] = useState([])
   const [columnId, setColumnId] = useState(searchParams.get('column') || 'todo')
   const [submitted, setSubmitted] = useState(false)
+  const [serverError, setServerError] = useState('')
+  const [busy, setBusy] = useState(false)
 
   if (!board) {
     return (
@@ -37,6 +38,23 @@ export default function CreateTaskPage() {
 
   const error = title.trim().length >= 2 ? '' : 'Title must be at least 2 characters.'
 
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setSubmitted(true)
+    setServerError('')
+    if (error) return
+    setBusy(true)
+    try {
+      await addTask(boardId, { title: title.trim(), description: description.trim(), assignee: assignee.trim(), priority, labels, columnId })
+      navigate(`/boards/${boardId}`)
+    } catch (err) {
+      const details = err.details?.map((item) => item.message).join(' ')
+      setServerError(details ? `${err.message}: ${details}` : err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <div className="task-page">
       <Navbar />
@@ -44,16 +62,7 @@ export default function CreateTaskPage() {
         <Link to={`/boards/${board.id}`} className="task-page-back">
           Back to {board.name}
         </Link>
-        <form
-          className="task-form"
-          onSubmit={(event) => {
-            event.preventDefault()
-            setSubmitted(true)
-            if (error) return
-            setBoards((prev) => addTask(prev, boardId, columnId, { title, description, assignee, priority, labels }))
-            navigate(`/boards/${boardId}`)
-          }}
-        >
+        <form className="task-form" onSubmit={handleSubmit}>
           <h1>New task</h1>
           <label>
             Title
@@ -103,8 +112,13 @@ export default function CreateTaskPage() {
               </label>
             ))}
           </fieldset>
-          <button type="submit" className="login-button">
-            Create task
+          {serverError && (
+            <p className="field-error" role="alert">
+              {serverError}
+            </p>
+          )}
+          <button type="submit" className="login-button" disabled={busy}>
+            {busy ? 'Creating…' : 'Create task'}
           </button>
         </form>
       </main>
