@@ -1,20 +1,17 @@
-const users = []
+import User from '../models/User.js'
 
 export const userRepo = {
   findByEmail(email) {
-    return users.find((user) => user.email === email) || null
+    return User.findOne({ email: email.toLowerCase() })
   },
-  findById(id) {
-    return users.find((user) => user.id === id) || null
+  async findById(id) {
+    try {
+      return await User.findById(id)
+    } catch {
+      return null
+    }
   },
   create({ name, email, passwordHash }) {
-    const user = {
-      id: `u-${Date.now()}`,
-      name: name.trim(),
-      email: email.toLowerCase(),
-      passwordHash,
-    }
-    users.push(user)
-    return user
+    return User.create({ name: name.trim(), email: email.toLowerCase(), passwordHash })
   },
 }

@@ -1,33 +1,40 @@
-import mockBoard, { mockBoards as seedBoards } from '../data/mockData.js'
+import mongoose from 'mongoose'
+import Board from '../models/Board.js'
 
-let boards = JSON.parse(JSON.stringify(seedBoards))
-let nextBoardId = 100
-let nextTaskId = 1000
+const DEFAULT_COLUMNS = [
+  { id: 'todo', title: 'To Do', tasks: [] },
+  { id: 'doing', title: 'Doing', tasks: [] },
+  { id: 'done', title: 'Done', tasks: [] },
+]
+
+const isValidId = (id) => mongoose.Types.ObjectId.isValid(id)
 
 export const boardRepo = {
-  findAll() {
-    return boards
+  async findAllForUser(userId) {
+    if (!isValidId(userId)) return []
+    const boards = await Board.find({ $or: [{ owner: userId }, { members: userId }] }).sort({ createdAt: 1 })
+    return boards.map((board) => board.toJSON())
   },
-  findById(id) {
-    return boards.find((board) => board.id === id) || null
+  async findById(id) {
+    if (!isValidId(id)) return null
+    const board = await Board.findById(id)
+    return board ? board.toJSON() : null
   },
-  create(name) {
-    const newBoard = {
-      id: `board-${nextBoardId++}`,
+  async create(name, userId) {
+    const board = await Board.create({
       name: name.trim(),
-      columns: [
-        { id: 'todo', title: 'To Do', tasks: [] },
-        { id: 'doing', title: 'Doing', tasks: [] },
-        { id: 'done', title: 'Done', tasks: [] },
-      ],
-    }
-    boards.push(newBoard)
-    return newBoard
+      owner: userId,
+      members: [userId],
+      columns: DEFAULT_COLUMNS,
+    })
+    return board.toJSON()
   },
-  update(id, patch) {
-    const board = boards.find((item) => item.id === id)
+  async update(id, patch) {
+    if (!isValidId(id)) return null
+    const board = await Board.findById(id)
     if (!board) return null
     Object.assign(board, patch)
-    return board
+    await board.save()
+    return board.toJSON()
   },
 }
