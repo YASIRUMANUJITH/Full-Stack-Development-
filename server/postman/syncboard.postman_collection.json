@@ -1,17 +1,249 @@
 ﻿{
-  "info": { "name": "SyncBoard", "_postman_id": "syncboard", "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json" },
+  "info": {
+    "name": "SyncBoard",
+    "_postman_id": "syncboard",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "SyncBoard REST API. Run requests top to bottom: Register or Login first (they save {{token}} automatically), then 'Boards — list' (it saves {{boardId}} and {{taskId}}). Requests marked with an expected status demonstrate failure cases. Seed login: demo@syncboard.app / password123."
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
   "item": [
-    { "name": "Health", "request": { "method": "GET", "url": "{{baseUrl}}/api/health" } },
-    { "name": "Auth - Register", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\"name\":\"Demo\",\"email\":\"demo@syncboard.app\",\"password\":\"password123\"}"}, "url": "{{baseUrl}}/api/auth/register" } },
-    { "name": "Auth - Login", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\"email\":\"demo@syncboard.app\",\"password\":\"password123\"}"}, "url": "{{baseUrl}}/api/auth/login" } },
-    { "name": "Auth - Me (401)", "request": { "method": "GET", "url": "{{baseUrl}}/api/auth/me" } },
-    { "name": "Boards - List", "request": { "method": "GET", "url": "{{baseUrl}}/api/boards" } },
-    { "name": "Boards - Create", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\"name\":\"New Board\"}"}, "url": "{{baseUrl}}/api/boards" } },
-    { "name": "Board - Get", "request": { "method": "GET", "url": "{{baseUrl}}/api/boards/board-1" } },
-    { "name": "Tasks - List", "request": { "method": "GET", "url": "{{baseUrl}}/api/boards/board-1/tasks" } },
-    { "name": "Tasks - Create", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\"title\":\"New Task\",\"columnId\":\"todo\"}"}, "url": "{{baseUrl}}/api/boards/board-1/tasks" } },
-    { "name": "Tasks - Patch", "request": { "method": "PATCH", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\"title\":\"Updated\"}"}, "url": "{{baseUrl}}/api/boards/board-1/tasks/t-101" } },
-    { "name": "Tasks - Delete", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/boards/board-1/tasks/t-101" } }
+    {
+      "name": "0. Health (public)",
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "GET",
+        "url": "{{baseUrl}}/api/health"
+      }
+    },
+    {
+      "name": "1. Auth — Register (captures token)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const data = pm.response.json().data;",
+              "if (data && data.token) {",
+              "  pm.collectionVariables.set('token', data.token);",
+              "  pm.collectionVariables.set('myUserId', data.user.id);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"name\":\"New Member\",\"email\":\"member@syncboard.app\",\"password\":\"password123\"}" },
+        "url": "{{baseUrl}}/api/auth/register"
+      }
+    },
+    {
+      "name": "2. Auth — Login as demo (captures token)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const data = pm.response.json().data;",
+              "if (data && data.token) pm.collectionVariables.set('token', data.token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"email\":\"demo@syncboard.app\",\"password\":\"password123\"}" },
+        "url": "{{baseUrl}}/api/auth/login"
+      }
+    },
+    {
+      "name": "3. Auth — Me",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/auth/me" }
+    },
+    {
+      "name": "4. Boards — list (captures ids)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const boards = pm.response.json().data;",
+              "if (boards && boards.length) {",
+              "  pm.collectionVariables.set('boardId', boards[0].id);",
+              "  const task = boards[0].columns.flatMap(c => c.tasks)[0];",
+              "  if (task) pm.collectionVariables.set('taskId', task.id);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/boards" }
+    },
+    {
+      "name": "5. Boards — create",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"name\":\"Board from Postman\"}" },
+        "url": "{{baseUrl}}/api/boards"
+      }
+    },
+    {
+      "name": "6. Board — get one",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/boards/{{boardId}}" }
+    },
+    {
+      "name": "7. Board — rename (PATCH)",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"name\":\"Renamed from Postman\"}" },
+        "url": "{{baseUrl}}/api/boards/{{boardId}}"
+      }
+    },
+    {
+      "name": "8. Tasks — list (filterable)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/boards/{{boardId}}/tasks?status=todo&q=api",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "boards", "{{boardId}}", "tasks"],
+          "query": [
+            { "key": "status", "value": "todo", "description": "optional: todo | doing | done" },
+            { "key": "q", "value": "api", "description": "optional: search title + description" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "9. Tasks — create (captures taskId + version)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const task = pm.response.json().data;",
+              "if (task) {",
+              "  pm.collectionVariables.set('taskId', task.id);",
+              "  pm.collectionVariables.set('taskVersion', String(task.version));",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"title\":\"Task from Postman\",\"columnId\":\"todo\",\"priority\":\"high\",\"labels\":[\"api\"]}" },
+        "url": "{{baseUrl}}/api/boards/{{boardId}}/tasks"
+      }
+    },
+    {
+      "name": "10. Tasks — move + edit (uses current version)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const task = pm.response.json().data;",
+              "if (task) pm.collectionVariables.set('taskVersion', String(task.version));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"title\":\"Edited in Postman\",\"status\":\"doing\",\"version\":{{taskVersion}}}" },
+        "url": "{{baseUrl}}/api/boards/{{boardId}}/tasks/{{taskId}}"
+      }
+    },
+    {
+      "name": "11. Tasks — delete",
+      "request": { "method": "DELETE", "url": "{{baseUrl}}/api/boards/{{boardId}}/tasks/{{taskId}}" }
+    },
+    {
+      "name": "F1. 401 — no token",
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "GET",
+        "url": "{{baseUrl}}/api/boards"
+      }
+    },
+    {
+      "name": "F2. 401 — garbage token",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "not-a-real-token", "type": "string" }] },
+        "method": "GET",
+        "url": "{{baseUrl}}/api/boards"
+      }
+    },
+    {
+      "name": "F3. 400 — validation (title too short)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"title\":\"x\"}" },
+        "url": "{{baseUrl}}/api/boards/{{boardId}}/tasks"
+      }
+    },
+    {
+      "name": "F4. 403 — someone else's board (run after registering a 2nd user)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/boards/{{boardId}}" }
+    },
+    {
+      "name": "F5. 404 — board does not exist",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/boards/64f1a2b3c4d5e6f7a8b9c0d1" }
+    },
+    {
+      "name": "F6. 409 — duplicate email",
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"name\":\"Copy Cat\",\"email\":\"demo@syncboard.app\",\"password\":\"password123\"}" },
+        "url": "{{baseUrl}}/api/auth/register"
+      }
+    },
+    {
+      "name": "F7. 409 — stale version conflict",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"title\":\"I loaded this an hour ago\",\"version\":999}" },
+        "url": "{{baseUrl}}/api/boards/{{boardId}}/tasks/{{taskId}}"
+      }
+    },
+    {
+      "name": "F8. 429 — login rate limit (run me 6 times in a row)",
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"email\":\"demo@syncboard.app\",\"password\":\"password123\"}" },
+        "url": "{{baseUrl}}/api/auth/login"
+      }
+    }
   ],
-  "variable": [{"key":"baseUrl","value":"http://localhost:4000"}]
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000" },
+    { "key": "token", "value": "" },
+    { "key": "boardId", "value": "" },
+    { "key": "taskId", "value": "" },
+    { "key": "taskVersion", "value": "1" },
+    { "key": "myUserId", "value": "" }
+  ]
 }
