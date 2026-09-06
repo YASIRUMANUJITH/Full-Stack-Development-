@@ -59,10 +59,7 @@ export default function Board({ board }) {
 
       <div className="columns">
         {visibleColumns.map((column) => (
-          <Column
-            key={column.id}
-            column={column}
-          />
+          <Column key={column.id} column={column} boardId={board.id} />
         ))}
       </div>
 

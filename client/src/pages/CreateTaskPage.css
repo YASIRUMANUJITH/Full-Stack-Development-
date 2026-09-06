@@ -1,0 +1,22 @@
+.labels-field {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.labels-field legend {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0 0.3rem;
+}
+
+.label-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+}

@@ -10,7 +10,8 @@ export function authenticate(req, res, next) {
     const payload = jwt.verify(token, config.jwtSecret)
     req.user = { id: payload.sub, email: payload.email }
     next()
-  } catch {
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') throw new AuthError('Token expired', 'TOKEN_EXPIRED')
     throw new AuthError('Invalid or expired token', 'BAD_TOKEN')
   }
 }

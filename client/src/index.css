@@ -1,35 +1,84 @@
-﻿* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 :root {
-  --bg: #f1f3f8;
+  --bg: #f5f5f7;
   --surface: #ffffff;
-  --border: #e2e6ef;
-  --border-strong: #c9cedd;
-  --text: #1c2333;
-  --text-soft: #6b7280;
-  --brand: #4f46e5;
-  --brand-dark: #4338ca;
-  --brand-faint: rgba(79, 70, 229, 0.12);
-  --accent: #9333ea;
-  --high: #dc2626;
-  --medium: #d97706;
-  --low: #16a34a;
+  --border: #d2d2d7;
+  --border-strong: #aeaeb2;
+  --text: #1d1d1f;
+  --text-soft: #6e6e73;
+  --brand: #007aff;
+  --brand-dark: #0051d5;
+  --brand-faint: rgba(0, 122, 255, 0.12);
+  --accent: #007aff;
+  --high: #ff3b30;
+  --medium: #ff9500;
+  --low: #34c759;
+  --column-bg: #ececef;
+  --count-bg: #e5e5ea;
+  --navbar-bg: #f5f5f7;
+  --chip-bg: #e5e5ea;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.18);
 }
 
 body.dark {
+  --bg: #1c1c1e;
+  --surface: #2c2c2e;
+  --border: #38383a;
+  --border-strong: #48484a;
+  --text: #f5f5f7;
+  --text-soft: #98989d;
+  --brand: #0a84ff;
+  --brand-dark: #409cff;
+  --brand-faint: rgba(10, 132, 255, 0.18);
+  --accent: #5e5ce6;
+  --column-bg: #2c2c2e;
+  --count-bg: #3a3a3c;
+  --navbar-bg: #1c1c1e;
+  --chip-bg: #3a3a3c;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.65);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 button,
 input {
   font: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 600px) {
+  body {
+    font-size: 0.95rem;
+  }
 }

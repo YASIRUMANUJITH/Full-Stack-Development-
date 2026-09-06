@@ -1,0 +1,42 @@
+.board-card {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.1rem 1.2rem;
+  text-decoration: none;
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.board-card:hover {
+  border-color: var(--brand);
+  box-shadow: var(--shadow-md);
+}
+
+.board-card-name {
+  font-size: 1.05rem;
+  margin-bottom: 0.25rem;
+}
+
+.board-card-stats {
+  font-size: 0.82rem;
+  color: var(--text-soft);
+  margin-bottom: 0.7rem;
+}
+
+.board-card-preview {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.board-card-column {
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: var(--count-bg);
+  color: var(--text-soft);
+  border-radius: 999px;
+  padding: 0.18rem 0.6rem;
+}
