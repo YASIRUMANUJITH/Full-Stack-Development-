@@ -17,6 +17,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+
         <Route
           path="/boards"
           element={
@@ -25,6 +26,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/boards/:boardId"
           element={
@@ -33,6 +35,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/boards/new"
           element={
@@ -41,6 +44,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/boards/:boardId/settings"
           element={
@@ -49,6 +53,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/boards/:boardId/tasks/new"
           element={
@@ -57,6 +62,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/boards/:boardId/tasks/:taskId"
           element={
@@ -65,7 +71,9 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/board" element={<Navigate to="/boards/board-1" replace />} />
+
+        <Route path="/board" element={<Navigate to="/boards" replace />} />
+
         <Route
           path="/profile"
           element={
@@ -74,6 +82,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
